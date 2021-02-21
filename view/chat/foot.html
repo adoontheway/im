@@ -280,6 +280,7 @@
                         this.msgcontext.cmd = 11;
                     },
                     loaduserinfo:function(userid,cb){
+                        console.log("loaduserinfo:",userid)
                         userid = ""+userid;
                         var userinfo = this.usermap[userid];
                         if(!userinfo){
@@ -292,7 +293,7 @@
                         }
                     },
                     onmessage:function(data){
-
+                        console.log("onmessage")
                         this.loaduserinfo(data.userid,function(user){
                             this.showmsg(user,data)
                         }.bind(this))
