@@ -89,6 +89,11 @@ func Chat(w http.ResponseWriter, r *http.Request) {
 		DataQueue: make(chan []byte, 50),
 		GroupSets: set.New(set.ThreadSafe),
 	}
+	// TODO: Get All userid in Group
+	cmdIds := contactService.SearchCommunityIds(userId)
+	for _, v := range cmdIds {
+		node.GroupSets.Add(v)
+	}
 	rwlocker.Lock()
 	clientMap[userId] = node
 	rwlocker.Unlock()
@@ -144,6 +149,11 @@ func dispatch(data []byte) {
 		sendMsg(msg.Dstid, data)
 	case CMD_ROOM_MSG:
 		//todo room char
+		for _, v := range clientMap {
+			if v.GroupSets.Has(msg.Dstid) {
+				v.DataQueue <- data
+			}
+		}
 	case CMD_HEART:
 		//todo hearbeat,do nothing
 	}
@@ -157,4 +167,12 @@ func sendMsg(userId int64, msg []byte) {
 	if ok {
 		node.DataQueue <- msg
 	}
+}
+func AddGroupId(userId, groupId int64) {
+	rwlocker.Lock()
+	node, ok := clientMap[userId]
+	if ok {
+		node.GroupSets.Add(groupId)
+	}
+	rwlocker.Unlock()
 }

@@ -67,7 +67,7 @@ func (s *ContactService) SearchFriend(userid int64) []model.User {
 	return coms
 }
 
-// 查找工会
+// 查找群
 func (s *ContactService) SearchCommunity(userid int64) []model.Community {
 	contacts := make([]model.Contact, 0)
 	objIds := make([]int64, 0)
@@ -81,6 +81,17 @@ func (s *ContactService) SearchCommunity(userid int64) []model.Community {
 	}
 	DbEngin.In("id", objIds).Find(&coms)
 	return coms
+}
+
+// 查找工会Id
+func (s *ContactService) SearchCommunityIds(userid int64) []int64 {
+	contacts := make([]model.Contact, 0)
+	objIds := make([]int64, 0)
+	DbEngin.Where("ownerid = ? and cate = ?", userid, model.CONCAT_CATE_COMUNITY).Find(&contacts)
+	for _, v := range contacts {
+		objIds = append(objIds, v.Dstobj)
+	}
+	return objIds
 }
 
 // 加入工会

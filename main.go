@@ -11,9 +11,11 @@ import (
 func main() {
 	http.HandleFunc("/user/login", ctrl.UserLogin)
 	http.HandleFunc("/user/register", ctrl.UserRegiter)
+	// http.HandleFunc("/user/find", ctrl.UserFind)
 	http.HandleFunc("/contact/loadcommunity", ctrl.LoadCommunity)
 	http.HandleFunc("/contact/loadfriend", ctrl.LoadFriend)
 	http.HandleFunc("/contact/joincommunity", ctrl.JoinCommunity)
+	http.HandleFunc("/contact/createcommunity", ctrl.CreateCommunity)
 	http.HandleFunc("/contact/addfriend", ctrl.AddFriend)
 	http.HandleFunc("/chat", ctrl.Chat)
 	http.HandleFunc("/attach/upload", ctrl.Upload)
