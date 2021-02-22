@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"strconv"
 	"sync"
@@ -131,8 +132,63 @@ func recvproc(node *Node) {
 		}
 		//todo 对data进一步处理
 		dispatch(data)
+		// broadcast message to local
+		broadMsg(data)
 		fmt.Printf("Receiv <= %s \n", data)
 	}
+}
+
+// listen to local port 3000 udp
+func udprecvproc() {
+	log.Println("Start udp receive process")
+	conn, err := net.ListenUDP("udp", &net.UDPAddr{
+		IP:   net.IPv4zero,
+		Port: 3000,
+	})
+	defer conn.Close()
+	if err != nil {
+		log.Println(err.Error())
+	}
+	for {
+		var buf [512]byte
+		n, err := conn.Read(buf[0:])
+		if err != nil {
+			log.Println(err.Error())
+			return
+		}
+		dispatch(buf[0:n])
+	}
+	log.Println("Stop udp receive process")
+}
+
+// send to local net other
+func udpsendproc() {
+	log.Println("Start udp send process")
+	conn, err := net.DialUDP("udp", nil, &net.UDPAddr{
+		IP:   net.IPv4(192, 168, 3, 255),
+		Port: 3000,
+	})
+	defer conn.Close()
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+	for {
+		select {
+		case data := <-udpsendchan:
+			_, err := conn.Write(data)
+			if err != nil {
+				log.Println(err.Error())
+				return
+			}
+		}
+	}
+}
+
+var udpsendchan chan []byte = make(chan []byte, 1024)
+
+func broadMsg(data []byte) {
+	udpsendchan <- data
 }
 
 func dispatch(data []byte) {
