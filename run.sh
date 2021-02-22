@@ -1,0 +1,1 @@
+nohup ./chat >> ./log.log 2>&1 &

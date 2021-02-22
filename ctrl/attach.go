@@ -64,7 +64,7 @@ func UploadLocal(w http.ResponseWriter, r *http.Request) {
 
 // Auth:public
 func UploadOss(w http.ResponseWriter, r *http.Request) {
-	srcfile, head, err := r.FormFile()
+	srcfile, head, err := r.FormFile("file")
 	if err != nil {
 		util.RespFail(w, err.Error())
 		return
